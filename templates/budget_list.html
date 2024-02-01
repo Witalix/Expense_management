@@ -1,0 +1,27 @@
+
+
+{% extends 'index.html' %}
+
+{% block content %}
+  <h2>Expense List</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <!-- Dodaj inne kolumny, jeśli są potrzebne -->
+      </tr>
+    </thead>
+    <tbody>
+      {% for expense in expenses %}
+        <tr>
+          <td>{{ expense.description }}</td>
+          <td>{{ expense.amount }}</td>
+          <td>{{ expense.date }}</td>
+          <!-- Dodaj inne kolumny, jeśli są potrzebne -->
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
