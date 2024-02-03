@@ -49,6 +49,7 @@ class Income(models.Model):
 
 class PaymentMethod(models.Model):
     name = models.CharField(max_length=255)
+    categories = models.ManyToManyField(Category)
 
     def __str__(self):
         return self.name

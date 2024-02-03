@@ -8,7 +8,16 @@ from .forms import CategoryForm, ExpenseForm, BudgetForm, IncomeForm, PaymentMet
 
 class HomeView(View):
     def get(self, request):
-        return render(request, 'base.html')
+        expenses = Expense.objects.all()
+        categories = Category.objects.all()
+        labels = [category for category in categories]
+        data = [expanse.amount for expanse in expenses]
+
+        context = {
+            'labels': labels,
+            'data': data
+        }
+        return render(request, 'base.html', context)
 
 
 class CreateCategoryView(View):
@@ -76,6 +85,7 @@ class CreatePaymentMethodView(View):
     def get(self, request):
         form = PaymentMethodForm()
         form.fields['name'].required = False
+        form.fields['categories'].required = False
         payment_methods = PaymentMethod.objects.all()
         return render(request, self.template_name, {'form': form, 'payment_methods': payment_methods})
 
@@ -83,7 +93,11 @@ class CreatePaymentMethodView(View):
         form = PaymentMethodForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            payment_method = form.save(commit=False)
+
+            categories = form.cleaned_data.get('categories')
+            payment_method.save()
+            payment_method.categories.set(categories)
             return redirect('create_payment_method')
 
         payment_method_id = request.POST.get('delete')
@@ -109,19 +123,39 @@ class CreateSavingsView(View):
 
 
 class BudgetListView(View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         budgets = Budget.objects.all()
+        categories = Category.objects.all()
+        payment_methods = PaymentMethod.objects.all()
         form = BudgetForm()
-        return render(request, 'budget_list.html', {'budgets': budgets, 'form': form})
 
-    def post(self, request, *args, **kwargs):
+        context = {
+            'budgets': budgets,
+            'categories': categories,
+            'payment_methods': payment_methods,
+            'form': form,
+        }
+
+        return render(request, 'budget_list.html', context)
+
+    def post(self, request):
         form = BudgetForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('budget_list')
 
         budgets = Budget.objects.all()
-        return render(request, 'budget_list.html', {'budgets': budgets, 'form': form})
+        categories = Category.objects.all()
+        payment_methods = PaymentMethod.objects.all()
+
+        context = {
+            'budgets': budgets,
+            'categories': categories,
+            'payment_methods': payment_methods,
+            'form': form,
+        }
+
+        return render(request, 'budget_list.html', context)
 
 
 class ExpenseListView(View):

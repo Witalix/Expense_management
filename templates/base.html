@@ -4,7 +4,7 @@
     <!-- Dodaj link do biblioteki Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        
+
         .expense-button,
         .income-button {
             display: inline-block;
@@ -16,7 +16,7 @@
             text-align: center;
             text-decoration: none;
             margin: 5px;
-          
+
         }
 
         .expense-button {
@@ -35,67 +35,68 @@
             background-color: #555; /* Nowy kolor tła po najechaniu */
         }
     </style>
-<body>
+
+    <body>
 
 
-<!-- Dodaj element canvas do rysowania diagramu -->
-<canvas id="expenseChart" width="400" height="400"></canvas>
+    <!-- Dodaj element canvas do rysowania diagramu -->
+    <canvas id="expenseChart" width="400" height="400"></canvas>
 
-<script>
-    // Pobierz element canvas
-    var canvas = document.getElementById('expenseChart');
-    var context = canvas.getContext('2d');
+    <script>
+        // Pobierz element canvas
+        var canvas = document.getElementById('expenseChart');
+        var context = canvas.getContext('2d');
 
-    // Dane do przedstawienia na diagramie
-    var expensesData = {
-        labels: ['Jedzenie', 'Mieszkanie', 'Komunikacja'],
-        datasets: [{
-            data: [300, 500, 1000], // Przykładowe kwoty wydatków dla jedzenia i mieszkania
-            backgroundColor: ['#FF0000', '#FFA500', '#0015ff'] // Kolory dla sektorów wydatków
+        // Dane do przedstawienia na diagramie
+        var expensesData = {
+            labels:['jedzenie'],
+            datasets: [{
+                data: [300, 500, 1000], // Przykładowe kwoty wydatków dla jedzenia i mieszkania
+                backgroundColor: ['#FF0000', '#FFA500', '#0015ff',] // Kolory dla sektorów wydatków
 
-        }]
-    };
-    
+            }]
+        };
 
-    // Utwórz nowy diagram kołowy
-    var expenseChart = new Chart(context, {
-        type: 'doughnut', // Typ diagramu kołowego
-        data: expensesData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white' // Kolor etykiet
-                        
+
+        // Utwórz nowy diagram kołowy
+        var expenseChart = new Chart(context, {
+            type: 'doughnut', // Typ diagramu kołowego
+            data: expensesData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white' // Kolor etykiet
+
+                        }
                     }
                 }
             }
+        });
+
+        function updateChartData(newData) {
+            expenseChart.data.datasets[0].data = newData;
+            expenseChart.update(); // Aktualizuj diagram
         }
-    });
+
+        // Funkcje do pokazywania diagramów
+        function showExpenseChart() {
+            updateChartData([300, 500, 1000]);
+        }
+
+        function showIncomeChart() {
+            // Tutaj możesz dodać dane i konfigurację dla przychodów
+            var incomeData = {
+                // ...
+            };
+            updateChartData([/* ... */]); // Aktualizuj dane dla przychodów
+        }
+        
+    </script>
     
-    function updateChartData(newData) {
-        expenseChart.data.datasets[0].data = newData;
-        expenseChart.update(); // Aktualizuj diagram
-    }
-
-    // Funkcje do pokazywania diagramów
-    function showExpenseChart() {
-        updateChartData([300, 500, 1000]);
-    }
-
-    function showIncomeChart() {
-        // Tutaj możesz dodać dane i konfigurację dla przychodów
-        var incomeData = {
-            // ...
-        };
-        updateChartData([/* ... */]); // Aktualizuj dane dla przychodów
-    }
-</script>    
-
-
-</body>
-</html>
+    </body>
+    
 
 {% endblock %}

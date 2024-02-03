@@ -28,12 +28,14 @@ class IncomeForm(forms.ModelForm):
 class PaymentMethodForm(forms.ModelForm):
     class Meta:
         model = PaymentMethod
-        fields = ['name']
+        fields = ['name', 'categories']
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Payment Method Name'}),
+            'categories': forms.CheckboxSelectMultiple()
         }
         required = {
             'name': False,
+            'categories': False,
         }
 
 

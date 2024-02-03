@@ -1,27 +1,19 @@
-
-
+<!-- create_payment_method.html -->
 {% extends 'index.html' %}
+{% block context %}
+<h2>List:</h2>
+<ul>
+  {% for payment_method in payment_methods %}
+    <li>
+      {{ payment_method.name }} - Categories:
+      {% if payment_method.categories.all %}
+        {{ payment_method.categories.all|join:", " }}
+      {% else %}
+        None
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
 
-{% block content %}
-  <h2>Expense List</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Description</th>
-        <th>Amount</th>
-        <th>Date</th>
-        <!-- Dodaj inne kolumny, jeśli są potrzebne -->
-      </tr>
-    </thead>
-    <tbody>
-      {% for expense in expenses %}
-        <tr>
-          <td>{{ expense.description }}</td>
-          <td>{{ expense.amount }}</td>
-          <td>{{ expense.date }}</td>
-          <!-- Dodaj inne kolumny, jeśli są potrzebne -->
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+
 {% endblock %}
