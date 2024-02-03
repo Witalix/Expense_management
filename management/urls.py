@@ -36,5 +36,6 @@ urlpatterns = [
     path('create_savings/', views.CreateSavingsView.as_view(), name='create_savings'),
 
     path('category/', views.CategoryListView.as_view(), name='category_list'),
-    path('create_category/', views.CreateCategoryView.as_view(), name='category_create')
+    path('create_category/', views.CreateCategoryView.as_view(), name='category_create'),
+
 ]

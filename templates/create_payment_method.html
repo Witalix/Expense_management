@@ -1,1 +1,26 @@
+<!-- create_payment_method.html -->
 {% extends 'index.html' %}
+
+{% block context %}
+  <h2>Create Payment Method</h2>
+  
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Payment Method</button>
+    
+    {% if payment_methods %}
+      <h2>Existing Payment Methods</h2>
+      <ul>
+        {% for payment_method in payment_methods %}
+          <li>
+            {{ payment_method.name }} -
+            <button type="submit" name="delete" value="{{ payment_method.id }}">Delete</button>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </form>
+
+  <a href="{% url 'payment_method_list' %}">Back to Payment Methods</a>
+{% endblock %}

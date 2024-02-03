@@ -1,1 +1,21 @@
 {% extends 'index.html' %}
+{% block context %}
+    
+<form method="post">
+    <h2>Category</h2>
+    {% csrf_token %}
+        <div class="container">
+            <div class="form-group">
+                <label for="{{ form.add_category.id_for_label }}">Add:</label>
+                {{ form.add_category }}
+              </div>
+        
+              <div class="form-group">
+                <label for="{{ form.delete_category.id_for_label }}">Delete:</label>
+                {{ form.delete_category }}
+              </div>
+        
+              <button type="submit" class="btn btn-primary">Execute</button>
+        </div>    
+</form>
+{% endblock %}

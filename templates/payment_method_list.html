@@ -1,1 +1,24 @@
+<!-- payment_method_list.html -->
 {% extends 'index.html' %}
+
+{% block context %}
+  <h2>Payment Methods</h2>
+
+  {% if payment_methods %}
+    <ul>
+      {% for payment_method in payment_methods %}
+        <li>
+          {{ payment_method.name }}
+          <form method="post">
+            {% csrf_token %}
+
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No existing payment methods.</p>
+  {% endif %}
+
+  <a href="{% url 'create_payment_method' %}">Create or Delete Payment Methods</a>
+{% endblock %}

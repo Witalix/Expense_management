@@ -29,6 +29,17 @@ class PaymentMethodForm(forms.ModelForm):
     class Meta:
         model = PaymentMethod
         fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Payment Method Name'}),
+        }
+        required = {
+            'name': False,
+        }
+
+
+class PaymentMethodActionForm(forms.Form):
+    action = forms.CharField(widget=forms.HiddenInput(), required=False)
+    payment_method_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
 
 class SavingsForm(forms.ModelForm):

@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.views import View
 from .models import Category, Expense, Budget, Income, PaymentMethod, Savings
-from .forms import CategoryForm, ExpenseForm, BudgetForm, IncomeForm, PaymentMethodForm, SavingsForm
+from .forms import CategoryForm, ExpenseForm, BudgetForm, IncomeForm, PaymentMethodForm, SavingsForm, \
+    PaymentMethodActionForm
 
 
 class HomeView(View):
@@ -17,9 +19,16 @@ class CreateCategoryView(View):
     def post(self, request):
         form = CategoryForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('category_list')
-        return render(request, 'create_category.html', {'form': form})
+            add_category = form.cleaned_data.get('add_category')
+            delete_category = form.cleaned_data.get('delete_category')
+
+            if add_category:
+                Category.objects.create(name=add_category)
+            elif delete_category:
+                Category.objects.filter(name=delete_category).delete()
+
+        categories = Category.objects.all()
+        return render(request, 'category_list.html', {'categories': categories, 'form': form})
 
 
 class CreateExpenseView(View):
@@ -62,16 +71,28 @@ class CreateIncomeView(View):
 
 
 class CreatePaymentMethodView(View):
+    template_name = 'create_payment_method.html'
+
     def get(self, request):
         form = PaymentMethodForm()
-        return render(request, 'create_payment_method.html', {'form': form})
+        form.fields['name'].required = False
+        payment_methods = PaymentMethod.objects.all()
+        return render(request, self.template_name, {'form': form, 'payment_methods': payment_methods})
 
     def post(self, request):
         form = PaymentMethodForm(request.POST)
+
         if form.is_valid():
             form.save()
-            return redirect('payment_method_list')
-        return render(request, 'create_payment_method.html', {'form': form})
+            return redirect('create_payment_method')
+
+        payment_method_id = request.POST.get('delete')
+        if payment_method_id:
+            PaymentMethod.objects.filter(id=payment_method_id).delete()
+            return redirect('create_payment_method')
+
+        payment_methods = PaymentMethod.objects.all()
+        return render(request, self.template_name, {'form': form, 'payment_methods': payment_methods})
 
 
 class CreateSavingsView(View):
@@ -157,7 +178,7 @@ class SavingsListView(View):
         form = SavingsForm()
         return render(request, 'savings_list.html', {'savings': savings, 'form': form})
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         form = SavingsForm(request.POST)
         if form.is_valid():
             form.save()
@@ -169,21 +190,7 @@ class SavingsListView(View):
 
 class CategoryListView(View):
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         categories = Category.objects.all()
         form = CategoryForm()
-        return render(request, 'category_list.html', {'categories': categories, 'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = CategoryForm(request.POST)
-        if form.is_valid():
-            add_category = form.cleaned_data.get('add_category')
-            delete_category = form.cleaned_data.get('delete_category')
-
-            if add_category:
-               Category.objects.create(name=add_category)
-            elif delete_category:
-               Category.objects.filter(name=delete_category).delete()
-
-        categories = Category.objects.all()  # Zaktualizuj listę kategorii po wykonaniu akcji
         return render(request, 'category_list.html', {'categories': categories, 'form': form})
