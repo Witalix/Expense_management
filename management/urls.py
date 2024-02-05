@@ -18,12 +18,13 @@ from django.urls import path, include
 from management import views
 
 urlpatterns = [
+    path('get_payment_methods/', views.GetPaymentMethodsView.as_view(), name='get_payment_methods'),
+
     path('budgets/', views.BudgetListView.as_view(), name='budget_list'),
     path('create_budget/', views.CreateBudgetView.as_view(), name='create_budget'),
 
     path('expenses/', views.ExpenseListView.as_view(), name='expense_list'),
     path('create_expense/', views.CreateExpenseView.as_view(), name='create_expense'),
-
 
     path('incomes/', views.IncomeListView.as_view(), name='income_list'),
     path('create_income/', views.CreateIncomeView.as_view(), name='create_income'),

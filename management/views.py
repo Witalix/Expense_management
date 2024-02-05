@@ -1,16 +1,50 @@
-from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 
 from django.views import View
 from .models import Category, Expense, Budget, Income, PaymentMethod, Savings
 from .forms import CategoryForm, ExpenseForm, BudgetForm, IncomeForm, PaymentMethodForm, SavingsForm, \
-    PaymentMethodActionForm
+    PaymentMethodActionForm, PaymentMethodSelectionForm
 
 
 class HomeView(View):
     def get(self, request):
-        categories = Category.objects.all()
-        return render(request, 'base.html', {'categories': categories})
+        return render(request, 'base.html', )
+
+
+class NewHomeView(View):
+    def get(self, request):
+        payment_methods = PaymentMethod.objects.all()
+        selected_method_id = request.GET.get('method_id')
+
+        try:
+            if selected_method_id:
+                selected_payment_method = get_object_or_404(PaymentMethod, pk=selected_method_id)
+            else:
+                default_payment_method_id = 26
+                selected_payment_method = get_object_or_404(PaymentMethod, pk=default_payment_method_id)
+        except PaymentMethod.DoesNotExist:
+            selected_payment_method = None
+
+        if selected_payment_method:
+            expenses = Expense.objects.filter(payment_method=selected_payment_method)
+            labels = [expense.category.name for expense in expenses]
+            values = [float(expense.amount) for expense in expenses]
+        else:
+            labels = []
+            values = []
+
+        return render(request, 'base_Static.html',
+                      {'labels': labels, 'values': values, 'payment_methods': payment_methods,
+                       'selected_payment_method': selected_payment_method})
+
+
+class GetPaymentMethodsView(View):
+    def get(self, request):
+        payment_methods = PaymentMethod.objects.all()
+        data = {'payment_methods': [{'id': method.id, 'name': method.name} for method in payment_methods]}
+        return JsonResponse(data)
 
 
 class CreateCategoryView(View):
@@ -58,7 +92,6 @@ class CreateExpenseView(View):
                 category=category,
                 payment_method=payment_method,
             )
-
 
         return render(request, 'create_expense.html', {'form': form, 'action_form': action_form})
 
@@ -238,3 +271,6 @@ class CategoryListView(View):
         categories = Category.objects.all()
         form = CategoryForm()
         return render(request, 'category_list.html', {'categories': categories, 'form': form})
+
+
+

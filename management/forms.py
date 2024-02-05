@@ -49,3 +49,7 @@ class SavingsForm(forms.ModelForm):
     class Meta:
         model = Savings
         fields = ['goal_name', 'goal_amount', 'current_amount', 'user']
+
+
+class PaymentMethodSelectionForm(forms.Form):
+    payment_method = forms.ModelChoiceField(queryset=PaymentMethod.objects.all(), label='Choose Payment Method')
