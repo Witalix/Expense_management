@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
+
 from django.views import View
 from .models import Category, Expense, Budget, Income, PaymentMethod, Savings
 from .forms import CategoryForm, ExpenseForm, BudgetForm, IncomeForm, PaymentMethodForm, SavingsForm, \
@@ -8,16 +9,8 @@ from .forms import CategoryForm, ExpenseForm, BudgetForm, IncomeForm, PaymentMet
 
 class HomeView(View):
     def get(self, request):
-        expenses = Expense.objects.all()
         categories = Category.objects.all()
-        labels = [category for category in categories]
-        data = [expanse.amount for expanse in expenses]
-
-        context = {
-            'labels': labels,
-            'data': data
-        }
-        return render(request, 'base.html', context)
+        return render(request, 'base.html', {'categories': categories})
 
 
 class CreateCategoryView(View):
@@ -40,17 +33,34 @@ class CreateCategoryView(View):
         return render(request, 'category_list.html', {'categories': categories, 'form': form})
 
 
+# views.py
 class CreateExpenseView(View):
     def get(self, request):
         form = ExpenseForm()
-        return render(request, 'create_expense.html', {'form': form})
+        action_form = PaymentMethodActionForm()
+        return render(request, 'create_expense.html', {'form': form, 'action_form': action_form})
 
     def post(self, request):
         form = ExpenseForm(request.POST)
+        action_form = PaymentMethodActionForm()
+
         if form.is_valid():
-            form.save()
-            return redirect('expense_list')
-        return render(request, 'create_expense.html', {'form': form})
+            amount = form.cleaned_data.get('amount')
+            description = form.cleaned_data.get('description')
+            date = form.cleaned_data.get('date')
+            category = form.cleaned_data.get('category')
+            payment_method = form.cleaned_data.get('payment_method')
+            # Create Expense
+            Expense.objects.create(
+                amount=amount,
+                description=description,
+                date=date,
+                category=category,
+                payment_method=payment_method,
+            )
+
+
+        return render(request, 'create_expense.html', {'form': form, 'action_form': action_form})
 
 
 class CreateBudgetView(View):

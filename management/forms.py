@@ -7,10 +7,10 @@ class CategoryForm(forms.Form):
     add_category = forms.CharField(label='Add Category', max_length=100, required=False)
 
 
-class ExpenseForm(forms.ModelForm):
-    class Meta:
-        model = Expense
-        fields = ['amount', 'description', 'date', 'user', 'category']
+class ExpenseForm(forms.Form):
+    amount = forms.DecimalField(max_digits=10, decimal_places=2)
+    category = forms.ModelChoiceField(queryset=Category.objects.all())
+    payment_method = forms.ModelChoiceField(queryset=PaymentMethod.objects.all())
 
 
 class BudgetForm(forms.ModelForm):
@@ -40,8 +40,9 @@ class PaymentMethodForm(forms.ModelForm):
 
 
 class PaymentMethodActionForm(forms.Form):
-    action = forms.CharField(widget=forms.HiddenInput(), required=False)
-    payment_method_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+    payment_method = forms.ModelChoiceField(queryset=PaymentMethod.objects.all(), empty_label=None)
+    category = forms.ModelChoiceField(queryset=Category.objects.all())
+    amount = forms.DecimalField(max_digits=10, decimal_places=2)
 
 
 class SavingsForm(forms.ModelForm):

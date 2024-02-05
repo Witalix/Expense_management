@@ -1,102 +1,67 @@
 {% extends 'index.html' %}
 {% block context %}
-    <title>Diagram Wydatków</title>
-    <!-- Dodaj link do biblioteki Chart.js -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kategorie i Kwoty</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
+</head>
+<body>
 
-        .expense-button,
-        .income-button {
-            display: inline-block;
-            padding: 10px;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 16px;
-            text-align: center;
-            text-decoration: none;
-            margin: 5px;
+<h1>Diagram</h1>
 
-        }
+<table border="1">
+    <tr>
+        <th>Kategorie </th>
+        <th>Kwota</th>
+    </tr>
+    {% for category in categories %}
+    <tr>
+        <td>{{ category.name }}</td>
+        <td>{{ category.amount }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
-        .expense-button {
-            background-color: #FF0000; /* Czerwony kolor dla wydatków */
-            color: #FFFFFF;
-        }
+<canvas id="myChart" width="400" height="400"></canvas>
 
-        .income-button {
-            background-color: #00FF00; /* Zielony kolor dla przychodów */
-            color: #FFFFFF;
-        }
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var data = {
+        labels: [{% for category in categories %}'{{ category.name }}',{% endfor %}],
+        datasets: [{
+            data: [{% for category in categories %}{{ category.amount }},{% endfor %}],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(75, 192, 192, 0.5)',
+                'rgba(153, 102, 255, 0.5)',
+                'rgba(255, 159, 64, 0.5)',
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+            ],
+            borderWidth: 1
+        }]
+    };
+    var options = {
+        color: 'white'
+    };
+    var myChart = new Chart(ctx, {
+        type: 'pie',
+        data: data,
+        options: options
+    });
+</script>
 
-        /* Dodaj efekt podświetlania po najechaniu myszką */
-        .expense-button:hover,
-        .income-button:hover {
-            background-color: #555; /* Nowy kolor tła po najechaniu */
-        }
-    </style>
-
-    <body>
-
-
-    <!-- Dodaj element canvas do rysowania diagramu -->
-    <canvas id="expenseChart" width="400" height="400"></canvas>
-
-    <script>
-        // Pobierz element canvas
-        var canvas = document.getElementById('expenseChart');
-        var context = canvas.getContext('2d');
-
-        // Dane do przedstawienia na diagramie
-        var expensesData = {
-            labels:['jedzenie'],
-            datasets: [{
-                data: [300, 500, 1000], // Przykładowe kwoty wydatków dla jedzenia i mieszkania
-                backgroundColor: ['#FF0000', '#FFA500', '#0015ff',] // Kolory dla sektorów wydatków
-
-            }]
-        };
-
-
-        // Utwórz nowy diagram kołowy
-        var expenseChart = new Chart(context, {
-            type: 'doughnut', // Typ diagramu kołowego
-            data: expensesData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'white' // Kolor etykiet
-
-                        }
-                    }
-                }
-            }
-        });
-
-        function updateChartData(newData) {
-            expenseChart.data.datasets[0].data = newData;
-            expenseChart.update(); // Aktualizuj diagram
-        }
-
-        // Funkcje do pokazywania diagramów
-        function showExpenseChart() {
-            updateChartData([300, 500, 1000]);
-        }
-
-        function showIncomeChart() {
-            // Tutaj możesz dodać dane i konfigurację dla przychodów
-            var incomeData = {
-                // ...
-            };
-            updateChartData([/* ... */]); // Aktualizuj dane dla przychodów
-        }
-        
-    </script>
-    
-    </body>
-    
-
+</body>
+</html>
 {% endblock %}
