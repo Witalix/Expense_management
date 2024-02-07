@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -47,7 +48,7 @@ class GetPaymentMethodsView(View):
         return JsonResponse(data)
 
 
-class CreateCategoryView(View):
+class CreateCategoryView(LoginRequiredMixin, View):
     def get(self, request):
         form = CategoryForm()
         return render(request, 'create_category.html', {'form': form})
@@ -96,33 +97,7 @@ class CreateExpenseView(View):
         return render(request, 'create_expense.html', {'form': form, 'action_form': action_form})
 
 
-class CreateBudgetView(View):
-    def get(self, request):
-        form = BudgetForm()
-        return render(request, 'create_budget.html', {'form': form})
-
-    def post(self, request):
-        form = BudgetForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('budget_list')
-        return render(request, 'create_budget.html', {'form': form})
-
-
-class CreateIncomeView(View):
-    def get(self, request):
-        form = IncomeForm()
-        return render(request, 'create_income.html', {'form': form})
-
-    def post(self, request):
-        form = IncomeForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('income_list')
-        return render(request, 'create_income.html', {'form': form})
-
-
-class CreatePaymentMethodView(View):
+class CreatePaymentMethodView(LoginRequiredMixin,View):
     template_name = 'create_payment_method.html'
 
     def get(self, request):
@@ -150,19 +125,6 @@ class CreatePaymentMethodView(View):
 
         payment_methods = PaymentMethod.objects.all()
         return render(request, self.template_name, {'form': form, 'payment_methods': payment_methods})
-
-
-class CreateSavingsView(View):
-    def get(self, request):
-        form = SavingsForm()
-        return render(request, 'create_savings.html', {'form': form})
-
-    def post(self, request):
-        form = SavingsForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('savings_list')
-        return render(request, 'create_savings.html', {'form': form})
 
 
 class BudgetListView(View):
@@ -201,38 +163,6 @@ class BudgetListView(View):
         return render(request, 'budget_list.html', context)
 
 
-class ExpenseListView(View):
-    def get(self, request):
-        expenses = Expense.objects.all()
-        form = ExpenseForm()
-        return render(request, 'expense_list.html', {'expenses': expenses, 'form': form})
-
-    def post(self, request):
-        form = ExpenseForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('expense_list')
-
-        expenses = Expense.objects.all()
-        return render(request, 'expense_list.html', {'expenses': expenses, 'form': form})
-
-
-class IncomeListView(View):
-    def get(self, request):
-        incomes = Income.objects.all()
-        form = IncomeForm()
-        return render(request, 'income_list.html', {'incomes': incomes, 'form': form})
-
-    def post(self, request):
-        form = IncomeForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('income_list')
-
-        incomes = Income.objects.all()
-        return render(request, 'income_list.html', {'incomes': incomes, 'form': form})
-
-
 class PaymentMethodListView(View):
     def get(self, request):
         payment_methods = PaymentMethod.objects.all()
@@ -249,28 +179,9 @@ class PaymentMethodListView(View):
         return render(request, 'payment_method_list.html', {'payment_methods': payment_methods, 'form': form})
 
 
-class SavingsListView(View):
-    def get(self, request):
-        savings = Savings.objects.all()
-        form = SavingsForm()
-        return render(request, 'savings_list.html', {'savings': savings, 'form': form})
-
-    def post(self, request):
-        form = SavingsForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('savings_list')
-
-        savings = Savings.objects.all()
-        return render(request, 'savings_list.html', {'savings': savings, 'form': form})
-
-
 class CategoryListView(View):
 
     def get(self, request):
         categories = Category.objects.all()
         form = CategoryForm()
         return render(request, 'category_list.html', {'categories': categories, 'form': form})
-
-
-

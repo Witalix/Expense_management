@@ -6,6 +6,8 @@
                 <img src="{% static 'assets/img/favicon/android-icon-72x72.png' %}" alt="MyHome Icon" class="mr-2">
                 MyHome
             </a>
+            <a>Hello {% if user.is_authenticated %} {{ user.username }}<a href="{% url 'logout_view' %}"> logout</a> {% else %} user  <a href="{% url 'login_view' %}">zaloguj</a>  <a href="{% url 'register_view' %}">register</a>{% endif %}</a>
+            
             <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
         </div>
         <div class="collapse navbar-collapse" id="navbarResponsive">
