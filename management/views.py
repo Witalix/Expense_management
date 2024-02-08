@@ -1,11 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Sum
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from django.views import View
-from .models import Category, Expense, Budget, PaymentMethod
+from .models import Category, Expense, Budget, PaymentMethod, Income
 from .forms import CategoryForm, ExpenseForm, BudgetForm, PaymentMethodForm, \
-    PaymentMethodActionForm
+    PaymentMethodActionForm, IncomeForm
 
 
 class HomeView(View):
@@ -169,3 +170,43 @@ class CategoryListView(View):
         categories = Category.objects.all()
         form = CategoryForm()
         return render(request, 'category_list.html', {'categories': categories, 'form': form})
+
+
+class IncomeView(View):
+    def get(self, request):
+        form = IncomeForm()
+        payment_methods = PaymentMethod.objects.all()
+        total_expenses = None
+
+        # Pobierz dochód użytkownika
+        user_income = Income.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum']
+
+        if 'payment_method' in request.GET:
+            payment_method_id = request.GET['payment_method']
+            payment_method = get_object_or_404(PaymentMethod, id=payment_method_id)
+            total_expenses = Expense.objects.filter(payment_method=payment_method).aggregate(Sum('amount'))[
+                'amount__sum']
+
+        remaining_amount = None
+        if user_income is not None and total_expenses is not None:
+            remaining_amount = user_income - total_expenses
+
+        context = {
+            'form': form,
+            'payment_methods': payment_methods,
+            'total_expenses': total_expenses,
+            'user_income': user_income,
+            'remaining_amount': remaining_amount
+        }
+        return render(request, 'income.html', context)
+
+    def post(self, request):
+        form = IncomeForm(request.POST)
+        if form.is_valid():
+            income = form.save(commit=False)
+            user = request.user
+            income.user = user
+            income.save()
+            return redirect('income')
+
+        return render(request, 'income.html', context = {'form': form})

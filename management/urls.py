@@ -29,4 +29,6 @@ urlpatterns = [
     path('category/', views.CategoryListView.as_view(), name='category_list'),
     path('create_category/', views.CreateCategoryView.as_view(), name='category_create'),
 
+    path('income/', views.IncomeView.as_view(), name='income')
+
 ]

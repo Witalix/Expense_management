@@ -1,0 +1,35 @@
+{% extends 'index.html' %}
+{% block context %}
+ <title>Add Income</title>
+</head>
+<body>
+    <h1>Add Income</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add Income</button>
+    </form>
+
+    <hr>
+
+    <h2>Total Expenses by Payment Method</h2>
+    <form method="get">
+        <select name="payment_method">
+            {% for payment_method in payment_methods %}
+                <option value="{{ payment_method.id }}">{{ payment_method.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Calculate</button>
+    </form>
+    {% if total_expenses %}
+        <p>Total Expenses: {{ total_expenses }}</p>
+    {% endif %}
+    {% if user_income %}
+        <p>Your Income: {{ user_income }}</p>
+    {% endif %}
+    {% if remaining_amount is not None %}
+        <p>Remaining Amount: {{ remaining_amount }}</p> <!-- Pokazujemy pozostałą kwotę -->
+    {% endif %}
+</body>
+</html>
+{% endblock %}

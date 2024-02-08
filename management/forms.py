@@ -22,7 +22,11 @@ class BudgetForm(forms.ModelForm):
 class IncomeForm(forms.ModelForm):
     class Meta:
         model = Income
-        fields = ['amount', 'description', 'date', 'user']
+        fields = ['amount']
+        widgets = {
+            'description': forms.TextInput(attrs={'required': False}),
+            'date': forms.DateInput(attrs={'required': False}),
+        }
 
 
 class PaymentMethodForm(forms.ModelForm):
@@ -43,12 +47,6 @@ class PaymentMethodActionForm(forms.Form):
     payment_method = forms.ModelChoiceField(queryset=PaymentMethod.objects.all(), empty_label=None)
     category = forms.ModelChoiceField(queryset=Category.objects.all())
     amount = forms.DecimalField(max_digits=10, decimal_places=2)
-
-
-class SavingsForm(forms.ModelForm):
-    class Meta:
-        model = Savings
-        fields = ['goal_name', 'goal_amount', 'current_amount', 'user']
 
 
 class PaymentMethodSelectionForm(forms.Form):
