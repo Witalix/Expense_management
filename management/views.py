@@ -1,11 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
 
+from django.shortcuts import render, redirect
 
 from django.views import View
 from .models import Category, Expense, Budget, PaymentMethod
-from .forms import CategoryForm, ExpenseForm, BudgetForm,  PaymentMethodForm,  \
+from .forms import CategoryForm, ExpenseForm, BudgetForm, PaymentMethodForm, \
     PaymentMethodActionForm
 
 
@@ -19,33 +18,18 @@ class NewHomeView(View):
         payment_methods = PaymentMethod.objects.all()
         selected_method_id = request.GET.get('method_id')
 
-        try:
-            if selected_method_id:
-                selected_payment_method = get_object_or_404(PaymentMethod, pk=selected_method_id)
-            else:
-                default_payment_method_id = 26
-                selected_payment_method = get_object_or_404(PaymentMethod, pk=default_payment_method_id)
-        except PaymentMethod.DoesNotExist:
-            selected_payment_method = None
-
-        if selected_payment_method:
-            expenses = Expense.objects.filter(payment_method=selected_payment_method)
-            labels = [expense.category.name for expense in expenses]
-            values = [float(expense.amount) for expense in expenses]
+        if selected_method_id:
+            selected_payment_method = PaymentMethod.objects.get(pk=selected_method_id)
         else:
-            labels = []
-            values = []
+            selected_payment_method = payment_methods.first()
+
+        expenses = Expense.objects.filter(payment_method=selected_payment_method)
+        labels = [expense.category.name for expense in expenses]
+        values = [float(expense.amount) for expense in expenses]
 
         return render(request, 'base_Static.html',
                       {'labels': labels, 'values': values, 'payment_methods': payment_methods,
                        'selected_payment_method': selected_payment_method})
-
-
-class GetPaymentMethodsView(View):
-    def get(self, request):
-        payment_methods = PaymentMethod.objects.all()
-        data = {'payment_methods': [{'id': method.id, 'name': method.name} for method in payment_methods]}
-        return JsonResponse(data)
 
 
 class CreateCategoryView(LoginRequiredMixin, View):
@@ -97,7 +81,7 @@ class CreateExpenseView(View):
         return render(request, 'create_expense.html', {'form': form, 'action_form': action_form})
 
 
-class CreatePaymentMethodView(LoginRequiredMixin,View):
+class CreatePaymentMethodView(LoginRequiredMixin, View):
     template_name = 'create_payment_method.html'
 
     def get(self, request):

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Category, Expense, Budget, Income, PaymentMethod, Savings
+from .models import Category,Budget, Income, PaymentMethod, Savings
 
 
 class CategoryForm(forms.Form):

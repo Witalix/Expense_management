@@ -18,7 +18,6 @@ from django.urls import path, include
 from management import views
 
 urlpatterns = [
-    path('get_payment_methods/', views.GetPaymentMethodsView.as_view(), name='get_payment_methods'),
 
     path('budgets/', views.BudgetListView.as_view(), name='budget_list'),
 

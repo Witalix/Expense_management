@@ -6,15 +6,6 @@ from management.forms import ExpenseForm
 
 
 @pytest.mark.django_db
-def test_get_payment_methods_view():
-    client = Client()
-    url = reverse('get_payment_methods')
-    response = client.get(url)
-    assert response.status_code == 200
-    assert 'payment_methods' in response.json()
-
-
-@pytest.mark.django_db
 def test_budget_list_view():
     client = Client()
     url = reverse('budget_list')

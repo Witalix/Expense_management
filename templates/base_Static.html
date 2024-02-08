@@ -1,31 +1,38 @@
 {% extends 'index.html' %}
 {% block context %}
     {% load static %}
-    <title>Dynamic Chart Example</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Static</title>
     </head>
-    <body data-labels="{{ labels }}" data-values="{{ values }}" data-selected-method="{{ selected_payment_method.id }}">
-
-    <div>
-        <select id="paymentMethodSelect">
-
+    <body>
+    <h1>Wydatki dla wybranej metody płatności</h1>
+    <form method="get" action="">
+        <label for="method_id">Wybierz metodę płatności:</label>
+        <select id="method_id" name="method_id">
+            {% for method in payment_methods %}
+                <option value="{{ method.id }}"
+                        {% if selected_payment_method.id == method.id %}selected{% endif %}>{{ method.name }}</option>
+            {% endfor %}
         </select>
-        <button onclick="updateChart()">Wybierz metodę płatności</button>
+        <button type="submit">Wybierz</button>
+    </form>
+
+    <h2>Wykres</h2>
+    <div>
+        <canvas id="myChart"></canvas>
     </div>
 
-    <canvas id="myChart" width="400" height="400"></canvas>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         var ctx = document.getElementById('myChart').getContext('2d');
         var myChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: [],
+                labels: {{ labels|safe }},
                 datasets: [{
-                    label: 'Wartości kategorii',
-                    data: [],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
+                    label: 'Kwota',
+                    data: {{ values|safe }},
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
                 }]
             },
@@ -33,57 +40,17 @@
                 scales: {
                     y: {
                         beginAtZero: true
+                    },
+                    x: {
+                        ticks: {
+                            color: 'white' // Ustawienie koloru tekstu etykiet osi X na biały
+                        }
                     }
                 }
             }
         });
-
-        var labels = document.body.getAttribute('data-labels').replace(/'/g, '"');
-        var values = document.body.getAttribute('data-values').replace(/'/g, '"');
-        var selectedMethodId = document.body.getAttribute('data-selected-method');
-
-        myChart.data.labels = JSON.parse(labels);
-        myChart.data.datasets[0].data = JSON.parse(values);
-        myChart.update();
-
-        // Pobierz dostępne metody płatności z serwera Django
-        fetch('/get_payment_methods/')
-            .then(response => response.json())
-            .then(data => {
-                var paymentMethodSelect = document.getElementById('paymentMethodSelect');
-
-                // Dodaj opcje do dropdowna na podstawie danych z serwera
-                data.payment_methods.forEach(method => {
-                    var option = document.createElement('option');
-                    option.value = method.id;
-                    option.text = method.name;
-                    paymentMethodSelect.appendChild(option);
-                });
-
-                // Ustaw domyślną metodę płatności na podstawie danych z widoku Django
-                paymentMethodSelect.value = selectedMethodId;
-            })
-            .catch(error => {
-                console.error('Fetch error:', error);
-            });
-
-        function updateChart() {
-            // Pobierz wartość z wybranego option w dropdownie
-            var selectedMethodId = document.getElementById('paymentMethodSelect').value;
-
-            // Pobierz informacje o metodzie płatności po jej id
-            fetch(`/get_payment_method_categories/?method_id=${selectedMethodId}`)
-                .then(response => response.json())
-                .then(categoryData => {
-                    // Aktualizuj dane w wykresie
-                    myChart.data.labels = categoryData.categories.map(category => category.name);
-                    myChart.data.datasets[0].data = categoryData.categories.map(category => category.total_amount);
-                    myChart.update();  // Wymagane, aby wykres się zaktualizował
-                })
-                .catch(error => {
-                    console.error('Fetch error:', error);
-                });
-        }
     </script>
+    </body>
+    </html>
 
 {% endblock %}
