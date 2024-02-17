@@ -46,7 +46,8 @@ class RegistrationView(View):
             user.set_password(form.cleaned_data.get('password'))
             user.save()
             login(request, user)
-            return redirect('home')
+            next_url = request.GET.get('next', reverse('home'))
+            return redirect(next_url)
         return render(request, 'add_form.html', {'form': form})
 
 

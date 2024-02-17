@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.test import Client
 from django.urls import reverse
 from management.forms import ExpenseForm
+from account.forms import LoginForm, RegisterForm, GroupPermissionAddForm
+from .models import Income, PaymentMethod, Expense
+from mixer.backend.django import mixer
 
 
 @pytest.mark.django_db
@@ -86,3 +89,64 @@ def test_create_category_view_post():
     response = client.post(url, data)
     assert response.status_code == 302
     assert response.url.startswith('/accounts/login/')
+
+
+@pytest.mark.django_db
+def test_login_view(client):
+    url = reverse('login_view')
+    response = client.get(url)
+    assert response.status_code == 200
+    assert isinstance(response.context['form'], LoginForm)
+
+
+@pytest.mark.django_db
+def test_logout_view(client, logged_in_user):
+    url = reverse('logout_view')
+    response = client.get(url)
+    assert response.status_code == 302
+    assert response.url == reverse('home')
+
+
+@pytest.mark.django_db
+def test_registration_view(client):
+    url = reverse('register_view')
+    response = client.get(url)
+    assert response.status_code == 200
+    assert isinstance(response.context['form'], RegisterForm)
+
+
+@pytest.mark.django_db
+def test_group_permission_view(client, group):
+    url = reverse('group_permission', kwargs={'pk': group.pk})
+    response = client.get(url)
+    assert response.status_code == 200
+    assert isinstance(response.context['form'], GroupPermissionAddForm)
+
+
+@pytest.mark.django_db
+def test_income_view_get(authenticated_user):
+    url = reverse('income')
+    response = authenticated_user.get(url)
+    assert response.status_code == 200
+    assert 'form' in response.context
+
+
+@pytest.mark.django_db
+def test_income_view_post_valid_data(authenticated_user, create_payment_method):
+    url = reverse('income')
+    data = {
+        'amount': 1000,
+        'payment_method': create_payment_method.id
+    }
+    response = authenticated_user.post(url, data)
+    assert response.status_code == 302
+    assert Income.objects.filter(amount=1000).exists()
+
+
+@pytest.mark.django_db
+def test_income_view_total_expenses(authenticated_user, create_income, create_payment_method):
+    mixer.blend(Expense, payment_method=create_payment_method, amount=500)
+    url = reverse('income')
+    response = authenticated_user.get(url + '?payment_method=' + str(create_payment_method.id))
+    assert response.status_code == 200
+    assert 'total_expenses' in response.context

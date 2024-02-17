@@ -9,11 +9,6 @@ from .forms import CategoryForm, ExpenseForm, BudgetForm, PaymentMethodForm, \
     PaymentMethodActionForm, IncomeForm
 
 
-class HomeView(View):
-    def get(self, request):
-        return render(request, 'base.html', )
-
-
 class NewHomeView(View):
     def get(self, request):
         payment_methods = PaymentMethod.objects.all()
@@ -70,7 +65,6 @@ class CreateExpenseView(View):
             date = form.cleaned_data.get('date')
             category = form.cleaned_data.get('category')
             payment_method = form.cleaned_data.get('payment_method')
-            # Create Expense
             Expense.objects.create(
                 amount=amount,
                 description=description,
@@ -96,16 +90,18 @@ class CreatePaymentMethodView(LoginRequiredMixin, View):
         form = PaymentMethodForm(request.POST)
 
         if form.is_valid():
-            payment_method = form.save(commit=False)
-
+            payment_method_name = form.cleaned_data['name']
             categories = form.cleaned_data.get('categories')
-            payment_method.save()
-            payment_method.categories.set(categories)
-            return redirect('create_payment_method')
 
-        payment_method_id = request.POST.get('delete')
-        if payment_method_id:
-            PaymentMethod.objects.filter(id=payment_method_id).delete()
+            existing_payment_method = PaymentMethod.objects.filter(name=payment_method_name).first()
+
+            if existing_payment_method:
+                existing_payment_method.categories.add(*categories)
+            else:
+                payment_method = form.save(commit=False)
+                payment_method.save()
+                payment_method.categories.set(categories)
+
             return redirect('create_payment_method')
 
         payment_methods = PaymentMethod.objects.all()
@@ -178,7 +174,6 @@ class IncomeView(View):
         payment_methods = PaymentMethod.objects.all()
         total_expenses = None
 
-        # Pobierz dochód użytkownika
         user_income = Income.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum']
 
         if 'payment_method' in request.GET:
@@ -191,14 +186,13 @@ class IncomeView(View):
         if user_income is not None and total_expenses is not None:
             remaining_amount = user_income - total_expenses
 
-        context = {
+        return render(request, 'income.html', {
             'form': form,
             'payment_methods': payment_methods,
             'total_expenses': total_expenses,
             'user_income': user_income,
             'remaining_amount': remaining_amount
-        }
-        return render(request, 'income.html', context)
+        })
 
     def post(self, request):
         form = IncomeForm(request.POST)
@@ -209,4 +203,4 @@ class IncomeView(View):
             income.save()
             return redirect('income')
 
-        return render(request, 'income.html', context = {'form': form})
+        return render(request, 'income.html', {'form': form})

@@ -1,4 +1,3 @@
-<!-- create_payment_method.html -->
 {% extends 'index.html' %}
 
 {% block context %}
@@ -7,20 +6,28 @@
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Save Payment Method</button>
     
-    {% if payment_methods %}
-      <h2>Existing Payment Methods</h2>
-      <ul>
-        {% for payment_method in payment_methods %}
-          <li>
-            {{ payment_method.name }} -
-            <button type="submit" name="delete" value="{{ payment_method.id }}">Delete</button>
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+    <h3>Select categories:</h3>
+    {% for category in categories %}
+      <input type="checkbox" id="category_{{ category.id }}" name="categories" value="{{ category.id }}">
+      <label for="category_{{ category.id }}">{{ category.name }}</label><br>
+    {% endfor %}
+    
+    <button type="submit">Save Payment Method</button>
   </form>
+
+  <h2>Existing Payment Methods</h2>
+  <ul>
+    {% for payment_method in payment_methods %}
+      <li>
+        {{ payment_method.name }} -
+        <form method="post" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" name="delete" value="{{ payment_method.id }}">Delete</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
 
   <a href="{% url 'payment_method_list' %}">Back to Payment Methods</a>
 {% endblock %}

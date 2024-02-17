@@ -14,14 +14,14 @@ class RegisterForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', ]
+        fields = ['username']
 
     def clean(self):
         cleaned_data = super().clean()
-        p1 = cleaned_data.get('password')
-        p2 = cleaned_data.get('re_password')
-        if p1 is None or p2 is None or p1 != p2:
-            raise ValidationError('Hasła musza być te same')
+        password = cleaned_data.get("password")
+        re_password = cleaned_data.get("re_password")
+        if password != re_password:
+            raise ValidationError("Hasła nie są zgodne. Proszę wprowadzić identyczne hasła.")
         return cleaned_data
 
 
@@ -32,3 +32,6 @@ class GroupPermissionAddForm(forms.ModelForm):
         widgets = {
             'permissions': forms.CheckboxSelectMultiple
         }
+
+
+
