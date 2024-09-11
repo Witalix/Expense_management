@@ -1,0 +1,11 @@
+{% extends 'index.html' %}
+
+{% block context %}
+<h2>Czy na pewno chcesz usunąć metodę płatności "{{ payment_method.name }}"?</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Tak, usuń</button>
+    <a href="{% url 'payment_method_list' %}" class="btn btn-secondary">Nie, wróć</a>
+</form>
+{% endblock %}

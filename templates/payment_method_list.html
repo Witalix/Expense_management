@@ -1,24 +1,45 @@
-<!-- payment_method_list.html -->
 {% extends 'index.html' %}
 
 {% block context %}
-  <h2>Payment Methods</h2>
 
-  {% if payment_methods %}
-    <ul>
-      {% for payment_method in payment_methods %}
-        <li>
-          {{ payment_method.name }}
-          <form method="post">
-            {% csrf_token %}
+<h2>Payment Methods</h2>
 
-          </form>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No existing payment methods.</p>
-  {% endif %}
 
-  <a href="{% url 'create_payment_method' %}">Create or Delete Payment Methods</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Payment Method</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payment_method in payment_methods %}
+        <tr>
+            <td>{{ payment_method.name }}</td>
+            <td>
+                
+                <a href="{% url 'confirm_payment_method_delete' pk=payment_method.pk %}" class="btn btn-danger">Usuń</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="2">No payment methods available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<form method="post" action="{% url 'payment_method_list' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="add_paymentmethod">Add Payment Method:</label>
+        {% if form.errors.add_paymentmethod %}
+          <div class="error">{{ form.errors.add_paymentmethod }}</div>
+        {% endif %}
+        <input type="text" id="add_paymentmethod" name="add_paymentmethod" class="form-control" placeholder="Enter payment method name">
+    </div>
+    <button type="submit" class="btn btn-primary">Add Payment Method</button>
+</form>
+
 {% endblock %}

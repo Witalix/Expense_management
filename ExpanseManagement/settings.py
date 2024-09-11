@@ -79,11 +79,11 @@ WSGI_APPLICATION = 'ExpanseManagement.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'management',
-        'USER': 'postgres',
-        'PASSWORD': 'coderslab',
-        'HOST': 'localhost',
-        'PORT': '5433'
+        'NAME': 'mydatabaselive',  # nazwa bazy danych, którą stworzyłeś
+        'USER': 'myuser',  # domyślny użytkownik
+        'PASSWORD': 'mypassword',  # hasło, które ustawiłeś
+        'HOST': 'localhost',  # host, jeśli uruchamiasz lokalnie
+        'PORT': '5432',
     }
 }
 

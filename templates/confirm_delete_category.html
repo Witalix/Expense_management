@@ -1,0 +1,12 @@
+<!-- confirm_delete_category.html -->
+{% extends "base.html" %}
+
+{% block context %}
+  <h1>Confirm Delete Category</h1>
+  <p>Czy na pewno chcesz usunąć tę kategorię?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Usuń</button>
+    <a href="{% url 'category_list' %}" class="btn btn-secondary">Wróć</a>
+  </form>
+{% endblock %}

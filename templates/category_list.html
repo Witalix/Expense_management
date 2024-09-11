@@ -1,18 +1,48 @@
 {% extends 'index.html' %}
 
 {% block context %}
-  <div class="container">
-    <h2>Category List</h2>
+<div class="container">
+    <h2>Manage Categories</h2>
+
+    <!-- Formularz dodawania kategorii -->
     <form method="post">
-      {% csrf_token %}
-        <ul>
-        {% for category in categories %}
-            <li>{{ category.name }}</li>
-        {% endfor %}
-        </ul>
-
-
-      <a href="{% url 'category_create' %}">Add or Delete Category</a>
+        {% csrf_token %}
+        <div class="container">
+            <div class="form-group">
+                <label for="{{ form.add_category.id_for_label }}">Add Category:</label>
+                {{ form.add_category }}
+                {% if form.add_category.errors %}
+                    <div class="error text-danger">
+                        {{ form.add_category.errors }}
+                    </div>
+                {% endif %}
+                <button type="submit" class="btn btn-primary">Add Category</button>
+            </div>
+        </div>
     </form>
-  </div>
+    <h1>Lista Kategorii</h1>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nazwa kategorii</th>
+          <th>Akcje</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category in categories %}
+          <tr>
+            <td>{{ category.name }}</td>
+            <td>
+             
+              <form method="post" action="{% url 'delete_category' category.id %}" style="display:inline;">
+                {% csrf_token %}
+                <a href="{% url 'delete_category' category.id %}" class="btn btn-danger btn-sm ml-2">Delete</a>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
 {% endblock %}

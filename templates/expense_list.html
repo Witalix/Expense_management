@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block context %}
+  <h1>Expense List</h1>
+
+  <!-- Import CSV Form -->
+  <div class="mb-3">
+    <form method="post" enctype="multipart/form-data" action="{% url 'import_expenses' %}">
+      {% csrf_token %}
+      <div class="input-group">
+        <input type="file" name="csv_file" class="form-control" />
+        <button type="submit" class="btn btn-primary">Import CSV</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Export CSV Form -->
+  <div class="mb-3">
+    <form method="get" action="{% url 'export_expenses' %}">
+      <button type="submit" class="btn btn-success">Export to CSV</button>
+    </form>
+  </div>
+  <h1>Lista wydatków</h1>
+
+  <!-- Formularz sortowania -->
+  <form method="get" action="{% url 'expense_list' %}" class="mb-3">
+    <div class="input-group">
+      <select name="sort_by" class="form-select">
+        <option value="-date" {% if sort_by == '-date' %}selected{% endif %}>Data (malejąco)</option>
+        <option value="date" {% if sort_by == 'date' %}selected{% endif %}>Data (rosnąco)</option>
+        <option value="amount" {% if sort_by == 'amount' %}selected{% endif %}>Kwota (rosnąco)</option>
+        <option value="-amount" {% if sort_by == '-amount' %}selected{% endif %}>Kwota (malejąco)</option>
+        <option value="category__name" {% if sort_by == 'category__name' %}selected{% endif %}>Kategoria (A-Z)</option>
+        <option value="-category__name" {% if sort_by == '-category__name' %}selected{% endif %}>Kategoria (Z-A)</option>
+        <option value="payment_method__name" {% if sort_by == 'payment_method__name' %}selected{% endif %}>Metoda płatności (A-Z)</option>
+        <option value="-payment_method__name" {% if sort_by == '-payment_method__name' %}selected{% endif %}>Metoda płatności (Z-A)</option>
+      </select>
+      <button type="submit" class="btn btn-primary">Sortuj</button>
+    </div>
+  </form>
+
+  
+  <form method="post" action="{% url 'expense_list' %}">
+    {% csrf_token %}
+    {% if expenses %}
+      <table class="table">
+        <thead>
+          <tr>
+          
+            <th><input type="checkbox" id="select_all">Select all </th>
+            <th>Kwota</th>
+            <th>Data</th>
+            <th>Kategoria</th>
+            <th>Metoda płatności</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for expense in expenses %}
+            <tr>
+              <td><input type="checkbox" class="expense-checkbox" name="selected_expenses" value="{{ expense.id }}"></td>
+              <td>{{ expense.amount }}</td>
+              <td>{{ expense.date }}</td>
+              <td>{{ expense.category.name }}</td>
+              <td>{{ expense.payment_method.name }}</td>
+              <td>
+                <a href="{% url 'edit_expense' expense.pk %}" class="btn btn-warning">Edytuj</a>
+                <a href="{% url 'delete_expense' expense.pk %}" class="btn btn-danger">Usuń</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <button type="submit" name="bulk_delete" class="btn btn-danger">Usuń zaznaczone</button>
+    {% else %}
+      <p>Brak wydatków do wyświetlenia.</p>
+    {% endif %}
+  </form>
+
+  
+  <div class="modal fade" id="addExpenseModal" tabindex="-1" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addExpenseModalLabel">Dodaj nowy wydatek</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" action="{% url 'create_expense' %}">
+            {% csrf_token %}
+            {{ form.as_p }} 
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+              <button type="submit" class="btn btn-primary">Dodaj wydatek</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addExpenseModal">Dodaj wydatek</button>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('select_all');
+    const expenseCheckboxes = document.querySelectorAll('.expense-checkbox');
+
+    selectAllCheckbox.addEventListener('change', function() {
+      expenseCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+      });
+    });
+  });
+</script>
+   
+
+  <div class="modal fade" id="addExpenseModal" tabindex="-1" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addExpenseModalLabel">Add New Expense</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" action="{% url 'create_expense' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Add Expense</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  
+{% endblock %}
